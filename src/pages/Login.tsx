@@ -1,15 +1,115 @@
-import { GraduationCap, Phone, User, Lock } from "lucide-react";
-import React from "react";
+import { GraduationCap, Phone, User, Lock, KeyRound, X } from "lucide-react";
+import React, { useEffect } from "react";
 import { useState } from "react";
-
+import { instructorAuthService } from "../services/instructorAuth.service";
+import { auth } from "../utils/auth";
+import { useNavigate } from "react-router-dom";
 type UserRole = "instructor" | "student" | null;
+interface AccessCodePopupProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (phoneNumber: string) => void;
+  role:  UserRole;
+}
+const AccessCodePopup: React.FC<AccessCodePopupProps> = ({ isOpen, onClose, onSubmit, role }) => {
+  const [accessCode, setAccessCode] = useState("");
+  const [error, setError] = useState("");
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!accessCode.trim()) {
+      setError("Access code is required");
+      return;
+    }
+    onSubmit(accessCode);
+  }
+  if (!isOpen) return null;
+  return(
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl relative">
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 text-gray-400 hover:text-gray-600"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        {/* Header */}
+        <div className="text-center mb-6">
+          <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+            <KeyRound className={`w-6 h-6 ${role === 'instructor' ? 'text-blue-600' : 'text-green-600'}`} />
+          </div>
+          <h3 className="text-xl font-bold text-gray-900 font-sans">Access Code Required</h3>
+          <p className="text-sm text-gray-500 font-sans mt-1">
+            Please enter your access code to continue to the dashboard
+          </p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <div className="relative">
+              <KeyRound className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                value={accessCode}
+                onChange={(e) => {
+                  setError("");
+                  setAccessCode(e.target.value);
+                }}
+                placeholder="Enter access code"
+                className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 transition-colors
+                  ${error ? 'border-red-300 focus:ring-red-200' : 
+                    role === 'instructor' ? 'focus:ring-blue-200 focus:border-blue-500' : 'focus:ring-green-200 focus:border-green-500'}`}
+              />
+            </div>
+            {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50 font-sans transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className={`flex-1 px-4 py-2 text-white rounded-lg font-sans transition-all duration-200 
+                ${role === 'instructor' 
+                  ? 'bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-200' 
+                  : 'bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-200'}`}
+            >
+              Verify & Continue
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
 const Login = () => {
+  const navigate = useNavigate();
+  
+  // Check if user is already authenticated
+  useEffect(() => {
+    if (auth.isAuthenticated()) {
+      navigate('/dashboard');
+    }
+  }, [navigate]);
+
+  const [showAccessCodePopup, setShowAccessCodePopup] = useState(false);
   const [role, setRole] = useState<UserRole>(null);
   const [formData, setFormData] = useState({
     phoneNumber: "",
     username: "",
     password: "",
   });
+  const [accessCode, setAccessCode] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleRoleSelect = (role: UserRole) => {
     setRole(role);
     setFormData({ phoneNumber: "", username: "", password: "" });
@@ -17,10 +117,48 @@ const Login = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    try {
+      if (role === 'instructor') {
+        setIsLoading(true);
+        const response = await instructorAuthService.createAccessCode({
+          phoneNumber: formData.phoneNumber
+        });
+        setAccessCode(response.accessCode || '');
+        setShowAccessCodePopup(true);
+      } else if (role === 'student') {
+        // Handle student login here
+        console.log('Student login:', formData);
+      }
+    } catch (error) {
+      setError('Login failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const handleAccessCodeSubmit = async (code: string) => {
+    try {
+      setIsLoading(true);
+      const response = await instructorAuthService.verifyAccessCode({
+        phoneNumber: formData.phoneNumber,
+        accessCode: code
+      });
+
+      auth.setToken(response.accessToken);
+      
+      setShowAccessCodePopup(false);
+      navigate('/dashboard');
+      
+    } catch (error) {
+      setError('Invalid access code. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
   return (
+    <>
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
@@ -66,11 +204,17 @@ const Login = () => {
                   role ? "opacity-100" : "opacity-0"
                 }`}
               >
+                {error && (
+                  <div className="mb-4 p-3 rounded-lg bg-red-50 text-red-600 text-sm">
+                    {error}
+                  </div>
+                )}
+                
                 {role === "instructor" && (
                   <div>
                     <label
                       htmlFor="phoneNumber"
-                      className="block text-sm font-medium text-gray-700 mb-2"
+                      className="block text-sm font-medium text-gray-700 mb-2 font-sans"
                     >
                       Phone Number
                     </label>
@@ -85,6 +229,7 @@ const Login = () => {
                         placeholder="Enter your phone number"
                         className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         required
+                        disabled={isLoading}
                       />
                     </div>
                   </div>
@@ -95,7 +240,7 @@ const Login = () => {
                     <div>
                       <label
                         htmlFor="username"
-                        className="block text-sm font-medium text-gray-700 mb-2"
+                        className="block text-sm font-medium text-gray-700 mb-2 font-sans"
                       >
                         Username
                       </label>
@@ -116,7 +261,7 @@ const Login = () => {
                     <div>
                       <label
                         htmlFor="password"
-                        className="block text-sm font-medium text-gray-700 mb-2"
+                        className="block text-sm font-medium text-gray-700 mb-2 font-sans"
                       >
                         Password
                       </label>
@@ -139,13 +284,24 @@ const Login = () => {
               </div>
               <button
                 type="submit"
+                disabled={isLoading}
                 className={`w-full py-3 px-4 rounded-lg font-medium text-white transition-all duration-200 hover:scale-105 active:scale-95 ${
                   role === 'instructor'
                     ? 'bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-200'
                     : 'bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-200'
-                }`}
+                } ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
-                Sign In as {role === 'instructor' ? 'Instructor' : 'Student'}
+                {isLoading ? (
+                  <span className="flex items-center justify-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processing...
+                  </span>
+                ) : (
+                  `Sign In as ${role === 'instructor' ? 'Instructor' : 'Student'}`
+                )}
               </button>
             </form>
           )}
@@ -157,6 +313,13 @@ const Login = () => {
         </div>
       </div>
     </div>
+    <AccessCodePopup
+    isOpen= {showAccessCodePopup}
+    onClose={() => setShowAccessCodePopup(false)}
+    onSubmit={handleAccessCodeSubmit}
+    role={role}
+    />
+    </>
   );
 };
 export default Login;
