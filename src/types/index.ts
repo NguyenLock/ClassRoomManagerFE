@@ -1,4 +1,6 @@
+import { FormInstance } from "antd";
 import { ColumnsType } from "antd/es/table";
+import { ReactNode } from "react";
 
 export interface SetupAccountRequest {
   name: string;
@@ -117,7 +119,47 @@ export interface GetStudentDetailResponse {
   success: boolean;
   student: StudentDetail;
 }
+export interface Lesson {
+  id: string;
+  title: string;
+  description: string;
+  createdAt: string;
+  status: string;
+  studentStats: {
+    total: number;
+    completed: number;
+    inProgress: number;
+  };
+}
+export interface GetAllLessonsResponse {
+  success: boolean;
+  total: number;
+  lessons: Lesson[];
+}
+export interface CreateLessonPayload {
+  title: string;
+  description: string;
+}
+export interface ReusableModalProps {
+  title: string;
+  isVisible: boolean;
+  onOk: () => void;
+  onCancel: () => void;
+  loading?: boolean;
+  form: FormInstance;
+  children: ReactNode;
+}
 export interface Stat {
   number: string;
   label: string;
+}
+
+export interface AssignLessonPayload {
+  studentPhone: string[];
+  lessonId: string;
+}
+
+export interface AssignLessonResponse {
+  success: boolean;
+  message: string;
 }

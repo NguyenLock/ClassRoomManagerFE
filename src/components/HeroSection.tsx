@@ -1,6 +1,6 @@
 import { ArrowRight, TrendingUp } from "lucide-react";
-import studentandTeacher from "../assets/studentandTeacher.webp";
 import { stats } from "../mock/Stats";
+import studentandTeacher from "../assets/studentandTeacher.webp";
 
 const HeroSection = () => {
   return (

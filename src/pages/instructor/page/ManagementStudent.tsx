@@ -1,12 +1,23 @@
-import { useState, useEffect } from 'react';
-import ReusableTable from '../../../components/UI/table';
-import { Tag, Button, Modal, message, Popconfirm, Form, Input, Descriptions, List, Popover } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
-import dayjs from 'dayjs';
-import { Edit2, Trash2, Eye } from 'lucide-react';
-import { Student } from '../../../types';
-import studentManagementService from '../../../services/studentManagement.service';
-import { AxiosError } from 'axios';
+import { useState, useEffect } from "react";
+import {
+  Tag,
+  Button,
+  Modal,
+  message,
+  Popconfirm,
+  Form,
+  Input,
+  Descriptions,
+  List,
+  Popover,
+} from "antd";
+import type { ColumnsType } from "antd/es/table";
+import { Edit2, Trash2, Eye } from "lucide-react";
+import { Student } from "../../../types";
+import { AxiosError } from "axios";
+import studentManagementService from "../../../services/studentManagement.service";
+import ReusableTable from "../../../components/UI/table";
+import dayjs from "dayjs";
 
 const ManagementStudent = () => {
   const [loading, setLoading] = useState(false);
@@ -22,13 +33,13 @@ const ManagementStudent = () => {
     <div className="w-[400px]">
       <Descriptions column={1} size="small" bordered>
         <Descriptions.Item label="Name" className="font-medium">
-          {detail.name || 'Not set up'}
+          {detail.name || "Not set up"}
         </Descriptions.Item>
         <Descriptions.Item label="Email" className="font-medium">
           {detail.email}
         </Descriptions.Item>
         <Descriptions.Item label="Phone Number" className="font-medium">
-          {detail.phoneNumber || 'Not set up'}
+          {detail.phoneNumber || "Not set up"}
         </Descriptions.Item>
         <Descriptions.Item label="Account Status" className="font-medium">
           {detail.accountSetup ? (
@@ -56,8 +67,8 @@ const ManagementStudent = () => {
       </div>
 
       <div className="mt-3 text-xs text-gray-500">
-        <p>Created: {dayjs(detail.createdAt).format('DD/MM/YYYY HH:mm')}</p>
-        <p>Updated: {dayjs(detail.updatedAt).format('DD/MM/YYYY HH:mm')}</p>
+        <p>Created: {dayjs(detail.createdAt).format("DD/MM/YYYY HH:mm")}</p>
+        <p>Updated: {dayjs(detail.updatedAt).format("DD/MM/YYYY HH:mm")}</p>
       </div>
     </div>
   );
@@ -69,11 +80,11 @@ const ManagementStudent = () => {
       if (response.success) {
         setStudents(response.students);
       } else {
-        message.error('Failed to fetch students');
+        message.error("Failed to fetch students");
       }
     } catch (error) {
-      message.error('Failed to fetch students');
-      console.error('Error fetching students:', error);
+      message.error("Failed to fetch students");
+      console.error("Error fetching students:", error);
     } finally {
       setLoading(false);
     }
@@ -91,7 +102,7 @@ const ManagementStudent = () => {
       if (axiosError.response?.data?.message) {
         message.error(axiosError.response.data.message);
       } else {
-        message.error('Failed to fetch student details');
+        message.error("Failed to fetch student details");
       }
     } finally {
       setLoading(false);
@@ -105,9 +116,9 @@ const ManagementStudent = () => {
   const handleEdit = (student: Student) => {
     setSelectedStudent(student);
     editForm.setFieldsValue({
-      name: student.name || '',
+      name: student.name || "",
       email: student.email,
-      phoneNumber: student.phoneNumber || ''
+      phoneNumber: student.phoneNumber || "",
     });
     setIsEditModalVisible(true);
   };
@@ -116,14 +127,14 @@ const ManagementStudent = () => {
     try {
       setLoading(true);
       await studentManagementService.deleteStudent(student.email);
-      message.success('Student deleted successfully');
+      message.success("Student deleted successfully");
       await fetchStudents();
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
       if (axiosError.response?.data?.message) {
         message.error(axiosError.response.data.message);
       } else {
-        message.error('Failed to delete student');
+        message.error("Failed to delete student");
       }
     } finally {
       setLoading(false);
@@ -133,16 +144,16 @@ const ManagementStudent = () => {
   const handleEditSubmit = async () => {
     try {
       if (!selectedStudent) return;
-      
+
       const values = await editForm.validateFields();
       setLoading(true);
-      
+
       await studentManagementService.editStudent(selectedStudent.email, {
         name: values.name,
-        phoneNumber: values.phoneNumber
+        phoneNumber: values.phoneNumber,
       });
 
-      message.success('Student updated successfully');
+      message.success("Student updated successfully");
       setIsEditModalVisible(false);
       await fetchStudents();
     } catch (error) {
@@ -150,7 +161,7 @@ const ManagementStudent = () => {
       if (axiosError.response?.data?.message) {
         message.error(axiosError.response.data.message);
       } else {
-        message.error('Failed to update student');
+        message.error("Failed to update student");
       }
     } finally {
       setLoading(false);
@@ -165,9 +176,9 @@ const ManagementStudent = () => {
     try {
       const values = await form.validateFields();
       setLoading(true);
-      
+
       await studentManagementService.addStudent(values.email);
-      message.success('Student added successfully');
+      message.success("Student added successfully");
       setIsAddModalVisible(false);
       form.resetFields();
       await fetchStudents();
@@ -176,7 +187,7 @@ const ManagementStudent = () => {
       if (axiosError.response?.data?.message) {
         message.error(axiosError.response.data.message);
       } else {
-        message.error('Failed to add student');
+        message.error("Failed to add student");
       }
     } finally {
       setLoading(false);
@@ -185,43 +196,46 @@ const ManagementStudent = () => {
 
   const columns: ColumnsType<Student> = [
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      render: (name: string | null) => name || 'Not set up',
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      render: (name: string | null) => name || "Not set up",
     },
     {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
     },
     {
-      title: 'Phone Number',
-      dataIndex: 'phoneNumber',
-      key: 'phoneNumber',
-      render: (phone: string | null) => phone || 'Not set up',
+      title: "Phone Number",
+      dataIndex: "phoneNumber",
+      key: "phoneNumber",
+      render: (phone: string | null) => phone || "Not set up",
     },
     {
-      title: 'Account Status',
-      dataIndex: 'accountSetup',
-      key: 'accountSetup',
-      render: (setup: boolean) => (
+      title: "Account Status",
+      dataIndex: "accountSetup",
+      key: "accountSetup",
+      render: (setup: boolean) =>
         setup ? (
-          <Tag color="success" className="rounded-full">Active</Tag>
+          <Tag color="success" className="rounded-full">
+            Active
+          </Tag>
         ) : (
-          <Tag color="warning" className="rounded-full">Pending Setup</Tag>
-        )
-      ),
+          <Tag color="warning" className="rounded-full">
+            Pending Setup
+          </Tag>
+        ),
     },
     {
-      title: 'Created At',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      render: (date: string) => dayjs(date).format('DD/MM/YYYY HH:mm'),
+      title: "Created At",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (date: string) => dayjs(date).format("DD/MM/YYYY HH:mm"),
     },
     {
-      title: 'Actions',
-      key: 'actions',
+      title: "Actions",
+      key: "actions",
       render: (_, record) => (
         <div className="flex items-center space-x-3">
           <Popover
@@ -270,11 +284,11 @@ const ManagementStudent = () => {
   ];
 
   const handleSearch = (value: string) => {
-    console.log('Searching for:', value);
+    console.log("Searching for:", value);
   };
 
   const handleFilter = () => {
-    console.log('Opening filter');
+    console.log("Opening filter");
   };
 
   return (
@@ -298,28 +312,21 @@ const ManagementStudent = () => {
         onCancel={() => setIsEditModalVisible(false)}
         confirmLoading={loading}
       >
-        <Form
-          form={editForm}
-          layout="vertical"
-          className="mt-4"
-        >
+        <Form form={editForm} layout="vertical" className="mt-4">
           <Form.Item
             name="name"
             label="Name"
-            rules={[{ required: true, message: 'Please input student name!' }]}
+            rules={[{ required: true, message: "Please input student name!" }]}
           >
             <Input placeholder="Enter student name" />
           </Form.Item>
-          <Form.Item
-            name="email"
-            label="Email"
-          >
+          <Form.Item name="email" label="Email">
             <Input disabled className="bg-gray-50" />
           </Form.Item>
           <Form.Item
             name="phoneNumber"
             label="Phone Number"
-            rules={[{ required: true, message: 'Please input phone number!' }]}
+            rules={[{ required: true, message: "Please input phone number!" }]}
           >
             <Input placeholder="Enter phone number" />
           </Form.Item>
@@ -336,17 +343,13 @@ const ManagementStudent = () => {
         }}
         confirmLoading={loading}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          className="mt-4"
-        >
+        <Form form={form} layout="vertical" className="mt-4">
           <Form.Item
             name="email"
             label="Student Email"
             rules={[
-              { required: true, message: 'Please input student email!' },
-              { type: 'email', message: 'Please enter a valid email!' }
+              { required: true, message: "Please input student email!" },
+              { type: "email", message: "Please enter a valid email!" },
             ]}
           >
             <Input placeholder="Enter student email" />

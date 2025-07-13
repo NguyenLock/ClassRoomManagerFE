@@ -1,5 +1,5 @@
-import { Navigate, Outlet } from 'react-router-dom';
 import { auth } from '../utils/auth';
+import { Navigate, Outlet } from 'react-router-dom';
 
 interface PrivateRouteProps {
   userType: 'instructor' | 'student';

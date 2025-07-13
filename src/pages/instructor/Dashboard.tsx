@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../../utils/auth";
 import Sidebar from "../../components/UI/SideBar";
 import HeaderAvatar from "../../components/UI/HeaderAvatar";
 import ManagementStudent from "./page/ManagementStudent";
+import ManagementLesson from "./page/ManagementLesson";
 
 export const InstructorDashboard = () => {
   const navigate = useNavigate();
@@ -28,6 +29,8 @@ export const InstructorDashboard = () => {
     switch (currentPage) {
       case "students":
         return <ManagementStudent />;
+      case "lessons":
+        return <ManagementLesson />;
       case "dashboard":
       default:
         return (
@@ -110,7 +113,13 @@ export const InstructorDashboard = () => {
         <HeaderAvatar
           userName="John Smith"
           userRole="Instructor"
-          pageTitle={currentPage === "students" ? "Student Management" : "Instructor Dashboard"}
+          pageTitle={
+            currentPage === "students"
+              ? "Student Management"
+              : currentPage === "lessons"
+              ? "Lesson Management"
+              : "Instructor Dashboard"
+          }
           onLogout={handleLogout}
           onProfileClick={handleProfileClick}
           onToggleSidebar={() => setCollapsed(!collapsed)}

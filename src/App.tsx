@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
 import { SetupAccount } from "./pages/SetupAccount";
 import { PrivateRoute } from "./routes/PrivateRoute";
 import { InstructorDashboard } from "./pages/instructor/Dashboard";
 import { StudentDashboard } from "./pages/student/Dashboard";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
 
 function App() {
   return (
@@ -12,10 +12,16 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/account-setup/:verificationToken" element={<SetupAccount />} />
+        <Route
+          path="/account-setup/:verificationToken"
+          element={<SetupAccount />}
+        />
 
         <Route element={<PrivateRoute userType="instructor" />}>
-          <Route path="/instructor/dashboard" element={<InstructorDashboard />} />
+          <Route
+            path="/instructor/dashboard"
+            element={<InstructorDashboard />}
+          />
         </Route>
 
         <Route element={<PrivateRoute userType="student" />}>

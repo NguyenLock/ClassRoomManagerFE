@@ -1,6 +1,5 @@
+import React, { useEffect, useState } from "react";
 import { GraduationCap, Phone, User, Lock, KeyRound, X } from "lucide-react";
-import React, { useEffect } from "react";
-import { useState } from "react";
 import { instructorAuthService } from "../services/instructorAuth.service";
 import { studentAuthService } from "../services/studentAuth.service";
 import { auth } from "../utils/auth";

@@ -1,6 +1,5 @@
-import apiInstance from "./api";
 import { GetAllStudentsResponse, UpdateStudentData, GetStudentDetailResponse} from "../types";
-
+import apiInstance from "./api";
 
 const studentManagementService = {
   getAllStudents: async (): Promise<GetAllStudentsResponse> => {
