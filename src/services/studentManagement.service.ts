@@ -1,5 +1,6 @@
 import apiInstance from "./api";
-import { GetAllStudentsResponse, UpdateStudentData } from "../types";
+import { GetAllStudentsResponse, UpdateStudentData, GetStudentDetailResponse} from "../types";
+
 
 const studentManagementService = {
   getAllStudents: async (): Promise<GetAllStudentsResponse> => {
@@ -41,6 +42,17 @@ const studentManagementService = {
       const response = await apiInstance.put(
         import.meta.env.VITE_EDIT_STUDENT.replace(":email", currentEmail),
         data
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getStudentDetail: async (email: string): Promise<GetStudentDetailResponse> => {
+    try {
+      const response = await apiInstance.get<GetStudentDetailResponse>(
+        import.meta.env.VITE_GET_DETAIL_STUDENT.replace(":email", email)
       );
       return response.data;
     } catch (error) {

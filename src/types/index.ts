@@ -103,6 +103,20 @@ export interface UpdateStudentData {
   name?: string;
   phoneNumber?: string;
 }
+export interface StudentDetail {
+  email: string;
+  name: string | null;
+  phoneNumber: string | null;
+  lessons: string[];
+  accountSetup: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GetStudentDetailResponse {
+  success: boolean;
+  student: StudentDetail;
+}
 export interface Stat {
   number: string;
   label: string;

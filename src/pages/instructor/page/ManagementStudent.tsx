@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import ReusableTable from '../../../components/UI/table';
-import { Tag, Button, Modal, message, Popconfirm, Form, Input } from 'antd';
+import { Tag, Button, Modal, message, Popconfirm, Form, Input, Descriptions, List, Popover } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
-import { Edit2, Trash2 } from 'lucide-react';
+import { Edit2, Trash2, Eye } from 'lucide-react';
 import { Student } from '../../../types';
 import studentManagementService from '../../../services/studentManagement.service';
 import { AxiosError } from 'axios';
@@ -14,8 +14,53 @@ const ManagementStudent = () => {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+  const [studentDetail, setStudentDetail] = useState<any>(null);
   const [editForm] = Form.useForm();
   const [form] = Form.useForm();
+
+  const renderStudentDetail = (detail: any) => (
+    <div className="w-[400px]">
+      <Descriptions column={1} size="small" bordered>
+        <Descriptions.Item label="Name" className="font-medium">
+          {detail.name || 'Not set up'}
+        </Descriptions.Item>
+        <Descriptions.Item label="Email" className="font-medium">
+          {detail.email}
+        </Descriptions.Item>
+        <Descriptions.Item label="Phone Number" className="font-medium">
+          {detail.phoneNumber || 'Not set up'}
+        </Descriptions.Item>
+        <Descriptions.Item label="Account Status" className="font-medium">
+          {detail.accountSetup ? (
+            <Tag color="success">Active</Tag>
+          ) : (
+            <Tag color="warning">Pending Setup</Tag>
+          )}
+        </Descriptions.Item>
+      </Descriptions>
+
+      <div className="mt-4">
+        <h3 className="text-sm font-medium mb-2">Lessons</h3>
+        {detail.lessons.length > 0 ? (
+          <List
+            size="small"
+            bordered
+            dataSource={detail.lessons}
+            renderItem={(lesson: string) => (
+              <List.Item className="py-1 px-2">{lesson}</List.Item>
+            )}
+          />
+        ) : (
+          <p className="text-gray-500 text-sm">No lessons assigned yet</p>
+        )}
+      </div>
+
+      <div className="mt-3 text-xs text-gray-500">
+        <p>Created: {dayjs(detail.createdAt).format('DD/MM/YYYY HH:mm')}</p>
+        <p>Updated: {dayjs(detail.updatedAt).format('DD/MM/YYYY HH:mm')}</p>
+      </div>
+    </div>
+  );
 
   const fetchStudents = async () => {
     try {
@@ -29,6 +74,25 @@ const ManagementStudent = () => {
     } catch (error) {
       message.error('Failed to fetch students');
       console.error('Error fetching students:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchStudentDetail = async (email: string) => {
+    try {
+      setLoading(true);
+      const response = await studentManagementService.getStudentDetail(email);
+      if (response.success) {
+        setStudentDetail(response.student);
+      }
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      if (axiosError.response?.data?.message) {
+        message.error(axiosError.response.data.message);
+      } else {
+        message.error('Failed to fetch student details');
+      }
     } finally {
       setLoading(false);
     }
@@ -160,6 +224,26 @@ const ManagementStudent = () => {
       key: 'actions',
       render: (_, record) => (
         <div className="flex items-center space-x-3">
+          <Popover
+            content={studentDetail && renderStudentDetail(studentDetail)}
+            title={<div className="font-medium">Student Details</div>}
+            trigger="click"
+            placement="left"
+            onOpenChange={(visible) => {
+              if (visible) {
+                fetchStudentDetail(record.email);
+              } else {
+                setStudentDetail(null);
+              }
+            }}
+          >
+            <Button
+              type="text"
+              icon={<Eye size={16} className="text-green-600" />}
+              className="flex items-center hover:text-green-700"
+              loading={loading && studentDetail?.email === record.email}
+            />
+          </Popover>
           <Button
             type="text"
             icon={<Edit2 size={16} className="text-blue-600" />}
