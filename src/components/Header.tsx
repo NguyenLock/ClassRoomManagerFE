@@ -1,6 +1,9 @@
 import { GraduationCap } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Header =() =>{
+    const navigate = useNavigate();
+
     return(
         <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -15,7 +18,7 @@ const Header =() =>{
               <a href="#contact" className="text-gray-600 hover:text-blue-600 transition-colors font-sans">Contact</a>
             </nav>
             <button 
-            //   onClick={() => setShowLoginModal(true)}
+              onClick={() => navigate('/login')}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all duration-200 transform hover:scale-105 font-sans"
             >
               Sign In

@@ -95,7 +95,7 @@ const Login = () => {
   // Check if user is already authenticated
   useEffect(() => {
     if (auth.isAuthenticated()) {
-      navigate('/dashboard');
+      navigate('/instructor/dashboard');
     }
   }, [navigate]);
 
@@ -147,9 +147,10 @@ const Login = () => {
       });
 
       auth.setToken(response.accessToken);
+      localStorage.setItem('userType', response.userType);
       
       setShowAccessCodePopup(false);
-      navigate('/dashboard');
+      navigate(response.userType === 'instructor' ? '/instructor/dashboard' : '/student/dashboard');
       
     } catch (error) {
       setError('Invalid access code. Please try again.');
