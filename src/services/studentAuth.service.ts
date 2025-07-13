@@ -1,8 +1,16 @@
-import { SetupAccountRequest } from '../types';
-import apiInstance from './api';
+import {
+  AccessCodeValidationRequest,
+  SetupAccountRequest,
+  StudentAuthResponse,
+  StudentLoginRequest,
+} from "../types";
+import apiInstance from "./api";
 
-export const studentAuthService = {
-  setupAccount: async (verificationToken: string, data: SetupAccountRequest) => {
+const studentAuthService = {
+  setupAccount: async (
+    verificationToken: string,
+    data: SetupAccountRequest
+  ) => {
     try {
       const response = await apiInstance.post(
         `${import.meta.env.VITE_SETUP_ACCOUNT}/${verificationToken}`,
@@ -10,8 +18,25 @@ export const studentAuthService = {
       );
       return response.data;
     } catch (error) {
-      console.error('Error setting up account:', error);
+      console.error("Error setting up account:", error);
       throw error;
     }
   },
-}; 
+
+  login: async (data: StudentLoginRequest): Promise<StudentAuthResponse> => {
+    const response = await apiInstance.post(import.meta.env.VITE_STUDENT_LOGIN, data);
+    return response.data;
+  },
+
+  validateAccessCode: async (
+    data: AccessCodeValidationRequest
+  ): Promise<StudentAuthResponse> => {
+    const response = await apiInstance.post(
+      import.meta.env.VITE_ACCESS_CODE_STUDENT,
+      data
+    );
+    return response.data;
+  },
+};
+
+export { studentAuthService };
