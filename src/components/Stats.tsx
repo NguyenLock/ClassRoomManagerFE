@@ -1,4 +1,4 @@
-import { stats } from "../mock/stats";
+import { stats } from "../mock/Stats";
 
 const Stats = () => {
     return (

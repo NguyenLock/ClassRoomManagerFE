@@ -1,6 +1,6 @@
 import { ArrowRight, TrendingUp } from "lucide-react";
 import studentandTeacher from "../assets/studentandTeacher.webp";
-import { stats } from "../mock/stats";
+import { stats } from "../mock/Stats";
 
 const HeroSection = () => {
   return (
@@ -28,14 +28,14 @@ const HeroSection = () => {
                     <ArrowRight className= "w-5 h-5" />
                 </button>
             </div>
-            <div className= "flex items-center space-x-8 pt-4">
-                {stats.slice(0, 2).map((stat,index)=>(
-                    <div key={index} className= "text-center">
-                        <div className= "text-2xl font-bold text-blue-600 font-sans">{stat.number}</div>
-                        <div className= "text-gray-600 font-sans">{stat.label}</div>
+            <div className="flex items-center space-x-8 pt-4">
+                {stats.slice(0, 2).map((stat, index) => (
+                    <div key={index} className="text-center">
+                        <div className="text-2xl font-bold text-blue-600 font-sans">{stat.number}</div>
+                        <div className="text-gray-600 font-sans">{stat.label}</div>
                     </div>
                 ))}
-                </div>
+            </div>
           </div>
           <div className="relative">
               <div className="bg-white rounded-2xl shadow-2xl p-8 transform rotate-3 hover:rotate-0 transition-transform duration-300">
