@@ -69,9 +69,39 @@ export interface MenuItem {
 export interface SidebarProps {
   collapsed?: boolean;
   onMenuClick?: (key: string) => void;
-  userType: 'instructor' | 'student';
+  userType: "instructor" | "student";
   title?: string;
   logo?: React.ReactNode;
+}
+export interface HeaderAvatarProps {
+  onToggleSidebar?: () => void;
+  userName: string;
+  userAvatar?: string;
+  userRole?: string;
+  pageTitle?: string;
+  onLogout?: () => void;
+  onProfileClick?: () => void;
+  showMenuButton?: boolean;
+  className?: string;
+}
+export interface Student {
+  name: string | null;
+  phoneNumber: string | null;
+  email: string;
+  accountSetup: boolean;
+  createdAt: string;
+}
+export interface GetAllStudentsResponse {
+  success: boolean;
+  students: Student[];
+}
+export interface AddStudentRequest {
+  email: string;
+}
+export interface UpdateStudentData {
+  email?: string;
+  name?: string;
+  phoneNumber?: string;
 }
 export interface Stat {
   number: string;

@@ -3,10 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { auth } from "../../utils/auth";
 import Sidebar from "../../components/UI/SideBar";
 import HeaderAvatar from "../../components/UI/HeaderAvatar";
+import ManagementStudent from "./page/ManagementStudent";
 
 export const InstructorDashboard = () => {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
+  const [currentPage, setCurrentPage] = useState<string>("dashboard");
 
   const handleLogout = () => {
     auth.removeToken();
@@ -15,33 +17,20 @@ export const InstructorDashboard = () => {
   };
 
   const handleMenuClick = (key: string) => {
-    console.log("Menu clicked:", key);
+    setCurrentPage(key);
   };
 
   const handleProfileClick = () => {
     console.log("Profile clicked");
   };
 
-  return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar
-        userType="instructor"
-        collapsed={collapsed}
-        onMenuClick={handleMenuClick}
-      />
-
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <HeaderAvatar
-          userName="John Smith"
-          userRole="Instructor"
-          pageTitle="Instructor Dashboard"
-          onLogout={handleLogout}
-          onProfileClick={handleProfileClick}
-          onToggleSidebar={() => setCollapsed(!collapsed)}
-          showMenuButton={true}
-        />
-
-        <main className="flex-1 overflow-y-auto bg-gray-50 p-6">
+  const renderContent = () => {
+    switch (currentPage) {
+      case "students":
+        return <ManagementStudent />;
+      case "dashboard":
+      default:
+        return (
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="bg-white rounded-lg shadow p-6">
@@ -105,6 +94,31 @@ export const InstructorDashboard = () => {
               </div>
             </div>
           </div>
+        );
+    }
+  };
+
+  return (
+    <div className="flex h-screen bg-gray-100">
+      <Sidebar
+        userType="instructor"
+        collapsed={collapsed}
+        onMenuClick={handleMenuClick}
+      />
+
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <HeaderAvatar
+          userName="John Smith"
+          userRole="Instructor"
+          pageTitle={currentPage === "students" ? "Student Management" : "Instructor Dashboard"}
+          onLogout={handleLogout}
+          onProfileClick={handleProfileClick}
+          onToggleSidebar={() => setCollapsed(!collapsed)}
+          showMenuButton={true}
+        />
+
+        <main className="flex-1 overflow-y-auto bg-gray-50 p-6">
+          {renderContent()}
         </main>
       </div>
     </div>

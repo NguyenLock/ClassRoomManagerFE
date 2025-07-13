@@ -2,18 +2,8 @@ import React from 'react';
 import { Avatar, Dropdown, Button } from 'antd';
 import { User, LogOut, Menu as MenuIcon } from 'lucide-react';
 import type { MenuProps } from 'antd';
+import { HeaderAvatarProps } from '../../types';
 
-export interface HeaderAvatarProps {
-  onToggleSidebar?: () => void;
-  userName: string;
-  userAvatar?: string;
-  userRole?: string;
-  pageTitle?: string;
-  onLogout?: () => void;
-  onProfileClick?: () => void;
-  showMenuButton?: boolean;
-  className?: string;
-}
 
 const HeaderAvatar: React.FC<HeaderAvatarProps> = ({ 
   onToggleSidebar, 
