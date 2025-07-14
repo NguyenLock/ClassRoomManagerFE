@@ -63,7 +63,6 @@ const HeaderAvatar: React.FC<HeaderAvatarProps> = ({
       const values = await form.validateFields();
       await instructorAuthService.editProfile(values);
       
-      // Update local state with new values
       setUserInfo(prev => ({
         ...prev,
         name: values.name,

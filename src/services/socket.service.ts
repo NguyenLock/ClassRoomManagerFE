@@ -18,7 +18,6 @@ class SocketService {
       try {
         console.log('Connecting to socket server:', import.meta.env.VITE_API_SECRET);
         
-        // Get user info from localStorage
         const userInfo = localStorage.getItem('userInfo');
         const userType = userInfo ? JSON.parse(userInfo).userType : 'instructor';
 

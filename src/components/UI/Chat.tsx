@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Input, Button, Avatar, Badge, Dropdown, Empty, Spin } from "antd";
-import { Send, Search, MoreVertical } from "lucide-react";
-import type { MenuProps } from "antd";
-import { Contact, Message, Student, ServerMessage } from "../../types";
+import { Input, Button, Avatar, Empty, Spin } from "antd";
+import { Send, Search } from "lucide-react";
+import { Message, Student, ServerMessage } from "../../types";
 import studentManagementService from "../../services/studentManagement.service";
 import chatService from "../../services/chat.service";
 import socketService from "../../services/socket.service";
@@ -58,7 +57,6 @@ const ChatInterface: React.FC = () => {
 
         await socketService.connect(token);
         
-        // Listen for new messages with correct event name
         socketService.on("new-message", (message: ServerMessage) => {
           console.log('Received new message:', message);
           const formattedMessage: Message = {
@@ -217,7 +215,6 @@ const ChatInterface: React.FC = () => {
   };
 
   const sendMessageWithSocket = (message: any) => {
-    // Emit through socket with correct event name
     socketService.emit("send-message", message, (response: any) => {
       console.log('Message sent response:', response);
       if (response?.error) {
@@ -227,7 +224,6 @@ const ChatInterface: React.FC = () => {
       }
     });
     
-    // Clear input after sending
     setMessageInput("");
   };
 
@@ -250,9 +246,7 @@ const ChatInterface: React.FC = () => {
 
   return (
     <div className="h-full bg-white rounded-lg shadow-sm overflow-hidden flex">
-      {/* Students Sidebar */}
       <div className="w-80 border-r border-gray-200 flex flex-col">
-        {/* Search Header */}
         <div className="p-4 border-b border-gray-200">
           <Input
             placeholder="Search students..."
@@ -264,7 +258,6 @@ const ChatInterface: React.FC = () => {
           />
         </div>
 
-        {/* Students List */}
         <div className="flex-1 overflow-y-auto">
           {loading ? (
             <div className="flex justify-center items-center h-32">
@@ -286,20 +279,13 @@ const ChatInterface: React.FC = () => {
                 onClick={() => setSelectedStudent(student)}
               >
                 <div className="flex items-center space-x-3">
-                  <div className="relative">
-                    <Avatar size={48} style={{ backgroundColor: "#1890ff" }}>
-                      {student.name?.charAt(0) || 'U'}
-                    </Avatar>
-                    {student.isOnline && (
-                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
-                    )}
-                  </div>
+                  <Avatar size={48} style={{ backgroundColor: "#1890ff" }}>
+                    {student.name?.charAt(0) || 'U'}
+                  </Avatar>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <h4 className="font-medium text-gray-900 truncate">
-                        {student.name || 'Unknown'}
-                      </h4>
-                    </div>
+                    <h4 className="font-medium text-gray-900 truncate">
+                      {student.name || 'Unknown'}
+                    </h4>
                     <p className="text-sm text-gray-600 truncate">
                       {student.email}
                     </p>
@@ -311,35 +297,25 @@ const ChatInterface: React.FC = () => {
         </div>
       </div>
 
-      {/* Chat Area */}
       <div className="flex-1 flex flex-col">
         {selectedStudent ? (
           <>
-            {/* Chat Header */}
             <div className="p-4 border-b border-gray-200 bg-white">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="relative">
-                    <Avatar size={40} style={{ backgroundColor: "#1890ff" }}>
-                      {selectedStudent.name?.charAt(0) || 'U'}
-                    </Avatar>
-                    {selectedStudent.isOnline && (
-                      <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">
-                      {selectedStudent.name || 'Unknown'}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      {selectedStudent.email}
-                    </p>
-                  </div>
+              <div className="flex items-center space-x-3">
+                <Avatar size={40} style={{ backgroundColor: "#1890ff" }}>
+                  {selectedStudent.name?.charAt(0) || 'U'}
+                </Avatar>
+                <div>
+                  <h3 className="font-semibold text-gray-900">
+                    {selectedStudent.name || 'Unknown'}
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    {selectedStudent.email}
+                  </p>
                 </div>
               </div>
             </div>
 
-            {/* Messages Area */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
               {loading ? (
                 <div className="flex justify-center items-center h-full">
@@ -349,60 +325,34 @@ const ChatInterface: React.FC = () => {
                 messages.map((message) => (
                   <div
                     key={message.id}
-                    className={`flex ${
-                      message.isOwn ? "justify-end" : "justify-start"
-                    }`}
+                    className={`flex ${message.isOwn ? "justify-end" : "justify-start"}`}
                   >
-                    <div
-                      className={`max-w-xs lg:max-w-md ${
-                        message.isOwn ? "order-2" : "order-1"
-                      }`}
-                    >
-                      <div
-                        className={`px-4 py-2 rounded-lg ${
-                          message.isOwn
-                            ? "bg-blue-600 text-white"
-                            : "bg-white text-gray-900 border border-gray-200"
-                        }`}
-                      >
-                        <p className="text-sm">{message.content}</p>
-                      </div>
-                      <p
-                        className={`text-xs text-gray-500 mt-1 ${
-                          message.isOwn ? "text-right" : "text-left"
-                        }`}
-                      >
+                    <div className={`max-w-xs lg:max-w-md rounded-lg px-4 py-2 ${
+                      message.isOwn
+                        ? "bg-blue-600 text-white"
+                        : "bg-white text-gray-900 border border-gray-200"
+                    }`}>
+                      <p className="text-sm">{message.content}</p>
+                      <p className={`text-xs mt-1 ${message.isOwn ? "text-blue-100" : "text-gray-500"}`}>
                         {formatMessageTime(message.timestamp)}
                       </p>
                     </div>
-                    {!message.isOwn && (
-                      <Avatar
-                        size={32}
-                        style={{ backgroundColor: "#1890ff" }}
-                        className="order-1 mr-2 mt-1"
-                      >
-                        {selectedStudent.name?.charAt(0) || 'U'}
-                      </Avatar>
-                    )}
                   </div>
                 ))
               )}
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Message Input */}
             <div className="p-4 border-t border-gray-200 bg-white">
               <div className="flex items-end space-x-2">
-                <div className="flex-1">
-                  <Input.TextArea
-                    value={messageInput}
-                    onChange={(e) => setMessageInput(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Type a message..."
-                    autoSize={{ minRows: 1, maxRows: 4 }}
-                    className="resize-none"
-                  />
-                </div>
+                <Input.TextArea
+                  value={messageInput}
+                  onChange={(e) => setMessageInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Type a message..."
+                  autoSize={{ minRows: 1, maxRows: 4 }}
+                  className="flex-1 resize-none"
+                />
                 <Button
                   type="primary"
                   icon={<Send size={16} />}
