@@ -5,6 +5,7 @@ import Sidebar from "../../components/UI/SideBar";
 import HeaderAvatar from "../../components/UI/HeaderAvatar";
 import ManagementStudent from "./page/ManagementStudent";
 import ManagementLesson from "./page/ManagementLesson";
+import ChatInterface from "../../components/UI/Chat";
 
 export const InstructorDashboard = () => {
   const navigate = useNavigate();
@@ -31,6 +32,12 @@ export const InstructorDashboard = () => {
         return <ManagementStudent />;
       case "lessons":
         return <ManagementLesson />;
+      case "chat":
+        return (
+          <div className="h-[calc(100vh-7rem)]">
+            <ChatInterface />
+          </div>
+        );
       case "dashboard":
       default:
         return (
@@ -111,13 +118,13 @@ export const InstructorDashboard = () => {
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <HeaderAvatar
-          userName="John Smith"
-          userRole="Instructor"
           pageTitle={
             currentPage === "students"
               ? "Student Management"
               : currentPage === "lessons"
               ? "Lesson Management"
+              : currentPage === "chat"
+              ? "Chat"
               : "Instructor Dashboard"
           }
           onLogout={handleLogout}

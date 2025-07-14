@@ -1,0 +1,362 @@
+import React, { useState, useRef, useEffect } from "react";
+import { Input, Button, Avatar, Badge, Dropdown, Empty, Spin } from "antd";
+import { Send, Search, MoreVertical } from "lucide-react";
+import type { MenuProps } from "antd";
+import { Contact, Message, Student } from "../../types";
+import studentManagementService from "../../services/studentManagement.service";
+import chatService from "../../services/chat.service";
+import { io } from "socket.io-client";
+
+const ChatInterface: React.FC = () => {
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [messageInput, setMessageInput] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [loading, setLoading] = useState(true);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const socketRef = useRef<any>(null);
+
+  const filteredStudents = students.filter(
+    (student) =>
+      student?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student?.email?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const formatTime = (date: Date) => {
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const minutes = Math.floor(diff / (1000 * 60));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (minutes < 1) return "now";
+    if (minutes < 60) return `${minutes}m`;
+    if (hours < 24) return `${hours}h`;
+    return `${days}d`;
+  };
+
+  const formatMessageTime = (date: Date) => {
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
+
+  const handleSendMessage = () => {
+    if (!messageInput.trim() || !selectedStudent) return;
+
+    const newMessage = {
+      content: messageInput.trim(),
+      recipientEmail: selectedStudent.email,
+    };
+
+    try {
+      // Emit message through socket
+      socketRef.current?.emit("sendMessage", newMessage);
+      setMessageInput("");
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      setError("Failed to send message");
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  useEffect(() => {
+    // Connect to socket server
+    try {
+      socketRef.current = io(import.meta.env.VITE_SOCKET_URL, {
+        auth: {
+          token: localStorage.getItem("accessToken"),
+        },
+      });
+
+      // Listen for new messages
+      socketRef.current.on("newMessage", (message: Message) => {
+        setMessages((prev) => [...prev, message]);
+      });
+
+      return () => {
+        if (socketRef.current) {
+          socketRef.current.disconnect();
+        }
+      };
+    } catch (error) {
+      console.error("Socket connection error:", error);
+      setError("Failed to connect to chat server");
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await studentManagementService.getAllStudents();
+        console.log('API Response:', response);
+        
+        if (response?.success && Array.isArray(response.students)) {
+          const studentList = response.students.map((student: Student) => ({
+            ...student,
+            isOnline: false,
+          }));
+          console.log('Formatted students:', studentList);
+          setStudents(studentList);
+        } else {
+          console.warn('Invalid or empty students data:', response);
+          setStudents([]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch students:", error);
+        setError("Failed to load students");
+        setStudents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStudents();
+  }, []);
+
+  useEffect(() => {
+    const fetchChatHistory = async () => {
+      if (!selectedStudent) return;
+
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await chatService.getChatHistory(
+          selectedStudent.email
+        );
+        if (response?.data) {
+          const formattedMessages = response.data.map((msg) => ({
+            id: msg.id,
+            senderId: msg.senderType === "instructor" ? "me" : msg.studentEmail,
+            senderName: msg.fromName || msg.studentEmail,
+            content: msg.message,
+            timestamp: new Date(msg.timestamp),
+            type: "text" as const,
+            isOwn: msg.senderType === "instructor",
+          }));
+          setMessages(formattedMessages);
+        } else {
+          setMessages([]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch chat history:", error);
+        setError("Failed to load chat history");
+        setMessages([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchChatHistory();
+  }, [selectedStudent]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  if (error) {
+    return (
+      <div className="h-full bg-white rounded-lg shadow-sm overflow-hidden flex items-center justify-center">
+        <div className="text-red-600 bg-red-50 p-4 rounded">
+          {error}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full bg-white rounded-lg shadow-sm overflow-hidden flex">
+      {/* Students Sidebar */}
+      <div className="w-80 border-r border-gray-200 flex flex-col">
+        {/* Search Header */}
+        <div className="p-4 border-b border-gray-200">
+          <Input
+            placeholder="Search students..."
+            prefix={<Search size={16} className="text-gray-400" />}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full"
+            allowClear
+          />
+        </div>
+
+        {/* Students List */}
+        <div className="flex-1 overflow-y-auto">
+          {loading ? (
+            <div className="flex justify-center items-center h-32">
+              <Spin />
+            </div>
+          ) : filteredStudents.length === 0 ? (
+            <div className="p-4">
+              <Empty description="No students found" />
+            </div>
+          ) : (
+            filteredStudents.map((student) => (
+              <div
+                key={student.email}
+                className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
+                  selectedStudent?.email === student.email
+                    ? "bg-blue-50 border-blue-200"
+                    : ""
+                }`}
+                onClick={() => setSelectedStudent(student)}
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="relative">
+                    <Avatar size={48} style={{ backgroundColor: "#1890ff" }}>
+                      {student.name?.charAt(0) || 'U'}
+                    </Avatar>
+                    {student.isOnline && (
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="font-medium text-gray-900 truncate">
+                        {student.name || 'Unknown'}
+                      </h4>
+                    </div>
+                    <p className="text-sm text-gray-600 truncate">
+                      {student.email}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Chat Area */}
+      <div className="flex-1 flex flex-col">
+        {selectedStudent ? (
+          <>
+            {/* Chat Header */}
+            <div className="p-4 border-b border-gray-200 bg-white">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="relative">
+                    <Avatar size={40} style={{ backgroundColor: "#1890ff" }}>
+                      {selectedStudent.name?.charAt(0) || 'U'}
+                    </Avatar>
+                    {selectedStudent.isOnline && (
+                      <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">
+                      {selectedStudent.name || 'Unknown'}
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      {selectedStudent.email}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Messages Area */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+              {loading ? (
+                <div className="flex justify-center items-center h-full">
+                  <Spin size="large" />
+                </div>
+              ) : (
+                messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex ${
+                      message.isOwn ? "justify-end" : "justify-start"
+                    }`}
+                  >
+                    <div
+                      className={`max-w-xs lg:max-w-md ${
+                        message.isOwn ? "order-2" : "order-1"
+                      }`}
+                    >
+                      <div
+                        className={`px-4 py-2 rounded-lg ${
+                          message.isOwn
+                            ? "bg-blue-600 text-white"
+                            : "bg-white text-gray-900 border border-gray-200"
+                        }`}
+                      >
+                        <p className="text-sm">{message.content}</p>
+                      </div>
+                      <p
+                        className={`text-xs text-gray-500 mt-1 ${
+                          message.isOwn ? "text-right" : "text-left"
+                        }`}
+                      >
+                        {formatMessageTime(message.timestamp)}
+                      </p>
+                    </div>
+                    {!message.isOwn && (
+                      <Avatar
+                        size={32}
+                        style={{ backgroundColor: "#1890ff" }}
+                        className="order-1 mr-2 mt-1"
+                      >
+                        {selectedStudent.name?.charAt(0) || 'U'}
+                      </Avatar>
+                    )}
+                  </div>
+                ))
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Message Input */}
+            <div className="p-4 border-t border-gray-200 bg-white">
+              <div className="flex items-end space-x-2">
+                <div className="flex-1">
+                  <Input.TextArea
+                    value={messageInput}
+                    onChange={(e) => setMessageInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Type a message..."
+                    autoSize={{ minRows: 1, maxRows: 4 }}
+                    className="resize-none"
+                  />
+                </div>
+                <Button
+                  type="primary"
+                  icon={<Send size={16} />}
+                  onClick={handleSendMessage}
+                  disabled={!messageInput.trim()}
+                  className="flex items-center"
+                >
+                  Send
+                </Button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="flex-1 flex items-center justify-center bg-gray-50">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Send size={24} className="text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Select a student
+              </h3>
+              <p className="text-gray-500">
+                Choose a student from the list to start messaging
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ChatInterface;

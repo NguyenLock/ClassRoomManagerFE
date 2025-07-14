@@ -2,6 +2,19 @@ import { FormInstance } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { ReactNode } from "react";
 
+export interface EditProfileRequest {
+  name: string;
+  email: string;
+}
+
+export interface AuthMeResponse {
+  phoneNumber: string;
+  name: string;
+  email: string;
+  userType: string;
+  createdAt: string;
+  updatedAt: string;
+}
 export interface SetupAccountRequest {
   name: string;
   phoneNumber: string;
@@ -47,8 +60,8 @@ export interface StudentAuthResponse {
       name: string;
       phoneNumber: string;
       userType: string;
-    }
-  }
+    };
+  };
 }
 export interface ReusableTableProps<T = any> {
   title?: string;
@@ -77,9 +90,7 @@ export interface SidebarProps {
 }
 export interface HeaderAvatarProps {
   onToggleSidebar?: () => void;
-  userName: string;
   userAvatar?: string;
-  userRole?: string;
   pageTitle?: string;
   onLogout?: () => void;
   onProfileClick?: () => void;
@@ -87,15 +98,16 @@ export interface HeaderAvatarProps {
   className?: string;
 }
 export interface Student {
-  name: string | null;
-  phoneNumber: string | null;
+  id: string;
+  name: string;
   email: string;
-  accountSetup: boolean;
-  createdAt: string;
+  phoneNumber?: string;
+  isOnline?: boolean;
 }
 export interface GetAllStudentsResponse {
   success: boolean;
   students: Student[];
+  message?: string;
 }
 export interface AddStudentRequest {
   email: string;
@@ -149,6 +161,32 @@ export interface ReusableModalProps {
   form: FormInstance;
   children: ReactNode;
 }
+
+export interface Message {
+  id: string;
+  senderId: string;
+  senderName: string;
+  content: string;
+  timestamp: Date;
+  type: 'text';
+  isOwn: boolean;
+}
+
+export interface SocketMessage {
+  content: string;
+  recipientEmail: string;
+}
+
+export interface Contact {
+  id: string;
+  name: string;
+  avatar?: string;
+  lastMessage: string;
+  lastMessageTime: Date;
+  unreadCount: number;
+  isOnline: boolean;
+  role: "student" | "instructor";
+}
 export interface Stat {
   number: string;
   label: string;
@@ -162,4 +200,19 @@ export interface AssignLessonPayload {
 export interface AssignLessonResponse {
   success: boolean;
   message: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  studentEmail: string;
+  message: string;
+  timestamp: string;
+  senderType: 'student' | 'instructor';
+  fromName?: string;
+  instructorPhone?: string;
+}
+
+export interface ChatHistoryResponse {
+  success: boolean;
+  data: ChatMessage[];
 }

@@ -4,7 +4,7 @@ import apiInstance from "./api";
 const studentManagementService = {
   getAllStudents: async (): Promise<GetAllStudentsResponse> => {
     try {
-      const response = await apiInstance.get<GetAllStudentsResponse>(
+      const response = await apiInstance.get(
         import.meta.env.VITE_GET_ALL_STUDENT
       );
       return response.data;

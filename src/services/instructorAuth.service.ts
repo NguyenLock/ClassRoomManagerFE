@@ -2,7 +2,8 @@ import {
     CreateAccessCode, 
     CreateAccessCodeResponse, 
     VerifyAccessCodeRequest,
-    VerifyAccessCodeResponse 
+    VerifyAccessCodeResponse,
+    EditProfileRequest
 } from "../types";
 import apiInstance from './api';
 
@@ -29,6 +30,18 @@ export const instructorAuthService = {
             return response.data;
         } catch (error) {
             console.error('Error verifying access code:', error);
+            throw error;
+        }
+    },
+
+    editProfile: async(data: EditProfileRequest): Promise<void> => {
+        try {
+            await apiInstance.put(
+                import.meta.env.VITE_EDIT_PROFILE_INSTRUCTOR,
+                data
+            );
+        } catch (error) {
+            console.error('Error updating profile:', error);
             throw error;
         }
     }
