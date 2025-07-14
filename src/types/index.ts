@@ -74,6 +74,7 @@ export interface ReusableTableProps<T = any> {
   addButtonText?: string;
   searchPlaceholder?: string;
   showActions?: boolean;
+  hideAddButton?: boolean;
 }
 export interface MenuItem {
   key: string;
@@ -224,4 +225,27 @@ export interface ChatMessage {
 export interface ChatHistoryResponse {
   success: boolean;
   data: ChatMessage[];
+}
+export interface LessonStudent {
+  lessonId: string;
+  title: string;
+  description: string;
+  assignedAt: string;
+  status: string;
+  completedAt?: string;
+}
+
+export interface GetMyLessonsResponse {
+  success: boolean;
+  data: {
+    lessons: LessonStudent[];
+  };
+}
+
+export interface MarkDoneLessonResponse {
+  success: boolean;
+  message: string;
+  data: {
+    lessons: LessonStudent[];
+  };
 }

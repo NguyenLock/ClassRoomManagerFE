@@ -240,7 +240,7 @@ const ChatInterface: React.FC = () => {
         <div className="text-red-600 bg-red-50 p-4 rounded">
           {error}
         </div>
-      </div>
+        </div>
     );
   }
 
@@ -281,14 +281,14 @@ const ChatInterface: React.FC = () => {
                 <div className="flex items-center space-x-3">
                   <Avatar size={48} style={{ backgroundColor: "#1890ff" }}>
                     {student.name?.charAt(0) || 'U'}
-                  </Avatar>
+                    </Avatar>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-gray-900 truncate">
+                      <h4 className="font-medium text-gray-900 truncate">
                       {student.name || 'Unknown'}
-                    </h4>
-                    <p className="text-sm text-gray-600 truncate">
+                      </h4>
+                      <p className="text-sm text-gray-600 truncate">
                       {student.email}
-                    </p>
+                      </p>
                   </div>
                 </div>
               </div>
@@ -301,17 +301,17 @@ const ChatInterface: React.FC = () => {
         {selectedStudent ? (
           <>
             <div className="p-4 border-b border-gray-200 bg-white">
-              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-3">
                 <Avatar size={40} style={{ backgroundColor: "#1890ff" }}>
                   {selectedStudent.name?.charAt(0) || 'U'}
-                </Avatar>
-                <div>
-                  <h3 className="font-semibold text-gray-900">
+                    </Avatar>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">
                     {selectedStudent.name || 'Unknown'}
-                  </h3>
-                  <p className="text-sm text-gray-500">
+                    </h3>
+                    <p className="text-sm text-gray-500">
                     {selectedStudent.email}
-                  </p>
+                    </p>
                 </div>
               </div>
             </div>
@@ -323,12 +323,12 @@ const ChatInterface: React.FC = () => {
                 </div>
               ) : (
                 messages.map((message) => (
-                  <div
-                    key={message.id}
+                <div
+                  key={message.id}
                     className={`flex ${message.isOwn ? "justify-end" : "justify-start"}`}
-                  >
+                >
                     <div className={`max-w-xs lg:max-w-md rounded-lg px-4 py-2 ${
-                      message.isOwn
+                        message.isOwn
                         ? "bg-blue-600 text-white"
                         : "bg-white text-gray-900 border border-gray-200"
                     }`}>
@@ -345,14 +345,14 @@ const ChatInterface: React.FC = () => {
 
             <div className="p-4 border-t border-gray-200 bg-white">
               <div className="flex items-end space-x-2">
-                <Input.TextArea
-                  value={messageInput}
-                  onChange={(e) => setMessageInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Type a message..."
-                  autoSize={{ minRows: 1, maxRows: 4 }}
+                  <Input.TextArea
+                    value={messageInput}
+                    onChange={(e) => setMessageInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Type a message..."
+                    autoSize={{ minRows: 1, maxRows: 4 }}
                   className="flex-1 resize-none"
-                />
+                  />
                 <Button
                   type="primary"
                   icon={<Send size={16} />}

@@ -36,30 +36,15 @@ const instructorMenuItems: MenuItem[] = [
 
 const studentMenuItems: MenuItem[] = [
   {
-    key: "dashboard",
-    icon: <Home size={20} />,
-    label: "Dashboard",
-  },
-  {
-    key: "my-courses",
+    key: "lessons",
     icon: <BookOpenCheck size={20} />,
-    label: "My Courses",
-  },
-  {
-    key: "schedule",
-    icon: <Calendar size={20} />,
-    label: "Schedule",
+    label: "My Lessons",
   },
   {
     key: "chat",
     icon: <MessageCircle size={20} />,
     label: "Chat",
-  },
-  {
-    key: "settings",
-    icon: <Settings size={20} />,
-    label: "Settings",
-  },
+  }
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -98,7 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className="mt-4">
         <Menu
           mode="inline"
-          defaultSelectedKeys={["dashboard"]}
+          defaultSelectedKeys={["lessons"]}
           items={menuItems}
           onClick={({ key }) => onMenuClick?.(key)}
           className="border-none"
