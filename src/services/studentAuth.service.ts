@@ -3,6 +3,7 @@ import {
   SetupAccountRequest,
   StudentAuthResponse,
   StudentLoginRequest,
+  GetAllInstructorsResponse
 } from "../types";
 import apiInstance from "./api";
 
@@ -36,6 +37,17 @@ const studentAuthService = {
       data
     );
     return response.data;
+  },
+
+  getAllInstructors: async (): Promise<GetAllInstructorsResponse> => {
+    try {
+      const response = await apiInstance.get(
+        import.meta.env.VITE_GET_ALL_INSTRUCTOR
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   },
 };
 

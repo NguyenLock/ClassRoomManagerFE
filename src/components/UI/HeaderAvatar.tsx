@@ -43,7 +43,6 @@ const HeaderAvatar: React.FC<HeaderAvatarProps> = ({
           });
         }
       } catch (error) {
-        console.error("Failed to fetch user info:", error);
         setUserInfo({
           name: "User",
           userType: "user",
@@ -72,7 +71,6 @@ const HeaderAvatar: React.FC<HeaderAvatarProps> = ({
       message.success("Profile updated successfully");
       setIsModalVisible(false);
     } catch (error) {
-      console.error("Failed to update profile:", error);
       message.error("Failed to update profile");
     } finally {
       setIsSubmitting(false);

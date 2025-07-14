@@ -9,7 +9,6 @@ const lessonManagementService = {
       );
       return response.data;
     } catch (error) {
-      console.error("Error in getAllLessons:", error);
       throw error;
     }
   },

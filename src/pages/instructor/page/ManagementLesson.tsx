@@ -51,7 +51,6 @@ const ManagementLesson = () => {
       } else {
         message.error("Failed to fetch lessons");
       }
-      console.error("Error fetching lessons:", error);
     } finally {
       setLoading(false);
     }
@@ -137,10 +136,6 @@ const ManagementLesson = () => {
     },
   ];
 
-  const handleSearch = (value: string) => {
-    console.log("Searching for:", value);
-  };
-
   const handleAdd = () => {
     setIsAddModalVisible(true);
   };
@@ -169,18 +164,6 @@ const ManagementLesson = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleEdit = (lesson: Lesson) => {
-    console.log("Editing lesson:", lesson);
-  };
-
-  const handleDelete = (lesson: Lesson) => {
-    console.log("Deleting lesson:", lesson);
-  };
-
-  const handleFilter = () => {
-    console.log("Opening filter");
   };
 
   const handleAssign = (lesson: Lesson) => {
@@ -227,9 +210,7 @@ const ManagementLesson = () => {
         data={lessons}
         columns={columns}
         loading={loading}
-        onSearch={handleSearch}
         onAdd={handleAdd}
-        onFilter={handleFilter}
         addButtonText="Add Lesson"
         searchPlaceholder="Search lessons..."
       />

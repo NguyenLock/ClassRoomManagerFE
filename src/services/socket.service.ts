@@ -18,9 +18,7 @@ class SocketService {
       try {
         console.log('Connecting to socket server:', import.meta.env.VITE_API_SECRET);
         
-        const userInfo = localStorage.getItem('userInfo');
-        const userType = userInfo ? JSON.parse(userInfo).userType : 'instructor';
-
+        const userType = localStorage.getItem('userType') || 'student';
         console.log('Connecting with userType:', userType);
         
         this.socket = io(import.meta.env.VITE_API_SECRET, {

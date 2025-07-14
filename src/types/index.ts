@@ -249,3 +249,18 @@ export interface MarkDoneLessonResponse {
     lessons: LessonStudent[];
   };
 }
+
+export interface Instructor {
+  phoneNumber: string;
+  name: string;
+  email: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GetAllInstructorsResponse {
+  success: boolean;
+  total: number;
+  data: Instructor[];
+}
+

@@ -36,7 +36,6 @@ export const LessonManagementStudent = () => {
         setLessons(response.data.lessons);
       }
     } catch (error) {
-      console.error("Failed to fetch lessons:", error);
       message.error("Failed to fetch lessons");
     } finally {
       setLoading(false);
@@ -56,7 +55,6 @@ export const LessonManagementStudent = () => {
         setLessons(response.data.lessons);
       }
     } catch (error) {
-      console.error("Failed to mark lesson as done:", error);
       message.error("Failed to mark lesson as done");
     } finally {
       setLoading(false);

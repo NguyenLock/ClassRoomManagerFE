@@ -84,7 +84,6 @@ const ManagementStudent = () => {
       }
     } catch (error) {
       message.error("Failed to fetch students");
-      console.error("Error fetching students:", error);
     } finally {
       setLoading(false);
     }
@@ -283,14 +282,6 @@ const ManagementStudent = () => {
     },
   ];
 
-  const handleSearch = (value: string) => {
-    console.log("Searching for:", value);
-  };
-
-  const handleFilter = () => {
-    console.log("Opening filter");
-  };
-
   return (
     <div className="p-6">
       <ReusableTable<Student>
@@ -298,9 +289,7 @@ const ManagementStudent = () => {
         data={students}
         columns={columns}
         loading={loading}
-        onSearch={handleSearch}
         onAdd={handleAdd}
-        onFilter={handleFilter}
         addButtonText="Add Student"
         searchPlaceholder="Search students..."
       />

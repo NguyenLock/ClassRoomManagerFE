@@ -16,7 +16,6 @@ export const instructorAuthService = {
             );
             return response.data;
         } catch (error) {
-            console.error('Error creating access code:', error);
             throw error;
         }
     },
@@ -41,7 +40,6 @@ export const instructorAuthService = {
                 data
             );
         } catch (error) {
-            console.error('Error updating profile:', error);
             throw error;
         }
     }
