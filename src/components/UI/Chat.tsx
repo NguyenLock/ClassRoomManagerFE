@@ -2,10 +2,11 @@ import React, { useState, useRef, useEffect } from "react";
 import { Input, Button, Avatar, Badge, Dropdown, Empty, Spin } from "antd";
 import { Send, Search, MoreVertical } from "lucide-react";
 import type { MenuProps } from "antd";
-import { Contact, Message, Student } from "../../types";
+import { Contact, Message, Student, ServerMessage } from "../../types";
 import studentManagementService from "../../services/studentManagement.service";
 import chatService from "../../services/chat.service";
-import { io } from "socket.io-client";
+import socketService from "../../services/socket.service";
+import authService from "../../services/auth.service";
 
 const ChatInterface: React.FC = () => {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -17,6 +18,11 @@ const ChatInterface: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [error, setError] = useState<string | null>(null);
   const socketRef = useRef<any>(null);
+  const [userInfo, setUserInfo] = useState({
+    name: '',
+    userType: '',
+    phoneNumber: ''
+  });
 
   const filteredStudents = students.filter(
     (student) =>
@@ -41,55 +47,49 @@ const ChatInterface: React.FC = () => {
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
-  const handleSendMessage = () => {
-    if (!messageInput.trim() || !selectedStudent) return;
+  useEffect(() => {
+    const initializeSocket = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          setError("No authentication token found");
+          return;
+        }
 
-    const newMessage = {
-      content: messageInput.trim(),
-      recipientEmail: selectedStudent.email,
+        await socketService.connect(token);
+        
+        // Listen for new messages with correct event name
+        socketService.on("new-message", (message: ServerMessage) => {
+          console.log('Received new message:', message);
+          const formattedMessage: Message = {
+            id: Date.now().toString(),
+            senderId: message.senderType === 'instructor' ? message.instructorPhone! : message.studentEmail,
+            senderName: message.senderType === 'instructor' ? message.fromName || 'Instructor' : message.fromName || message.studentEmail,
+            content: message.message,
+            timestamp: new Date(message.timestamp),
+            type: 'text',
+            isOwn: message.senderType === userInfo.userType
+          };
+          setMessages(prev => [...prev, formattedMessage]);
+        });
+
+        socketService.on("error", (error: any) => {
+          console.error('Socket error:', error);
+          setError(`Chat error: ${error.message}`);
+        });
+
+      } catch (error: any) {
+        console.error("Socket connection error:", error);
+        setError(`Failed to connect to chat server: ${error.message}`);
+      }
     };
 
-    try {
-      // Emit message through socket
-      socketRef.current?.emit("sendMessage", newMessage);
-      setMessageInput("");
-    } catch (error) {
-      console.error("Failed to send message:", error);
-      setError("Failed to send message");
-    }
-  };
+    initializeSocket();
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
-  useEffect(() => {
-    // Connect to socket server
-    try {
-      socketRef.current = io(import.meta.env.VITE_SOCKET_URL, {
-        auth: {
-          token: localStorage.getItem("accessToken"),
-        },
-      });
-
-      // Listen for new messages
-      socketRef.current.on("newMessage", (message: Message) => {
-        setMessages((prev) => [...prev, message]);
-      });
-
-      return () => {
-        if (socketRef.current) {
-          socketRef.current.disconnect();
-        }
-      };
-    } catch (error) {
-      console.error("Socket connection error:", error);
-      setError("Failed to connect to chat server");
-    }
-  }, []);
+    return () => {
+      socketService.disconnect();
+    };
+  }, [userInfo.userType]);
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -101,7 +101,9 @@ const ChatInterface: React.FC = () => {
         
         if (response?.success && Array.isArray(response.students)) {
           const studentList = response.students.map((student: Student) => ({
-            ...student,
+            id: student.id || student.email,
+            name: student.name || 'Unknown',
+            email: student.email,
             isOnline: false,
           }));
           console.log('Formatted students:', studentList);
@@ -123,18 +125,36 @@ const ChatInterface: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const data = await authService.getMe();
+        if (data) {
+          setUserInfo({
+            name: data.name,
+            userType: data.userType,
+            phoneNumber: data.phoneNumber
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch user info:", error);
+      }
+    };
+    fetchUserInfo();
+  }, []);
+
+  useEffect(() => {
     const fetchChatHistory = async () => {
       if (!selectedStudent) return;
 
       try {
         setLoading(true);
         setError(null);
-        const response = await chatService.getChatHistory(
-          selectedStudent.email
-        );
-        if (response?.data) {
+        const response = await chatService.getChatHistory(selectedStudent.email);
+        console.log('Chat history response:', response);
+        
+        if (response?.success && Array.isArray(response.data)) {
           const formattedMessages = response.data.map((msg) => ({
-            id: msg.id,
+            id: msg.id || Date.now().toString(),
             senderId: msg.senderType === "instructor" ? "me" : msg.studentEmail,
             senderName: msg.fromName || msg.studentEmail,
             content: msg.message,
@@ -142,6 +162,7 @@ const ChatInterface: React.FC = () => {
             type: "text" as const,
             isOwn: msg.senderType === "instructor",
           }));
+          console.log('Formatted messages:', formattedMessages);
           setMessages(formattedMessages);
         } else {
           setMessages([]);
@@ -161,6 +182,61 @@ const ChatInterface: React.FC = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  const handleSendMessage = () => {
+    if (!messageInput.trim() || !selectedStudent) return;
+
+    try {
+      const messageData = {
+        message: messageInput.trim(),
+        recipientEmail: selectedStudent.email,
+      };
+
+      console.log('Sending message:', messageData);
+      
+      if (!socketService.isConnected()) {
+        console.warn('Socket not connected, attempting to reconnect...');
+        const token = localStorage.getItem("accessToken");
+        if (token) {
+          socketService.connect(token).then(() => {
+            sendMessageWithSocket(messageData);
+          }).catch(error => {
+            setError("Failed to reconnect to chat server");
+          });
+        } else {
+          setError("No authentication token found");
+        }
+        return;
+      }
+
+      sendMessageWithSocket(messageData);
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      setError("Failed to send message");
+    }
+  };
+
+  const sendMessageWithSocket = (message: any) => {
+    // Emit through socket with correct event name
+    socketService.emit("send-message", message, (response: any) => {
+      console.log('Message sent response:', response);
+      if (response?.error) {
+        console.error('Failed to send message:', response.error);
+        setError(`Failed to send message: ${response.error}`);
+        return;
+      }
+    });
+    
+    // Clear input after sending
+    setMessageInput("");
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
 
   if (error) {
     return (

@@ -162,6 +162,15 @@ export interface ReusableModalProps {
   children: ReactNode;
 }
 
+export interface ServerMessage {
+  message: string;
+  studentEmail: string;
+  instructorPhone?: string;
+  fromName?: string;
+  senderType: 'student' | 'instructor';
+  timestamp: string | Date;
+}
+
 export interface Message {
   id: string;
   senderId: string;
