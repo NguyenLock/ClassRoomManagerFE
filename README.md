@@ -5,9 +5,9 @@ A comprehensive classroom management application built with React, TypeScript, a
 # Screenshots
 - HomePage
 ![Classroom Management System](./src/assets/website.png)
-- LoginPage
+### LoginPage
 ![Classroom Manageemnt Logn](./src/assets/Login.gif)
--Dashboard Intructors
+### Dashboard
 ![Classroom Mangement DashBoard](./src/assets/lessonstudents.gif)
 
 ## ✨ Features
