@@ -3,7 +3,6 @@ import {
   Tag,
   Button,
   Modal,
-  message,
   Popconfirm,
   Form,
   Input,
@@ -15,6 +14,7 @@ import type { ColumnsType } from "antd/es/table";
 import { Edit2, Trash2, Eye } from "lucide-react";
 import { Student } from "../../../types";
 import { AxiosError } from "axios";
+import { showToast, ToastComponent } from "../../../components/UI/modal/Toast";
 import studentManagementService from "../../../services/studentManagement.service";
 import ReusableTable from "../../../components/UI/table";
 import dayjs from "dayjs";
@@ -80,10 +80,10 @@ const ManagementStudent = () => {
       if (response.success) {
         setStudents(response.students);
       } else {
-        message.error("Failed to fetch students");
+        showToast.error("Failed to fetch students");
       }
     } catch (error) {
-      message.error("Failed to fetch students");
+      showToast.error("Failed to fetch students");
     } finally {
       setLoading(false);
     }
@@ -99,9 +99,9 @@ const ManagementStudent = () => {
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
       if (axiosError.response?.data?.message) {
-        message.error(axiosError.response.data.message);
+        showToast.error(axiosError.response.data.message);
       } else {
-        message.error("Failed to fetch student details");
+        showToast.error("Failed to fetch student details");
       }
     } finally {
       setLoading(false);
@@ -126,14 +126,14 @@ const ManagementStudent = () => {
     try {
       setLoading(true);
       await studentManagementService.deleteStudent(student.email);
-      message.success("Student deleted successfully");
+      showToast.success("Student deleted successfully");
       await fetchStudents();
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
       if (axiosError.response?.data?.message) {
-        message.error(axiosError.response.data.message);
+        showToast.error(axiosError.response.data.message);
       } else {
-        message.error("Failed to delete student");
+        showToast.error("Failed to delete student");
       }
     } finally {
       setLoading(false);
@@ -152,15 +152,15 @@ const ManagementStudent = () => {
         phoneNumber: values.phoneNumber,
       });
 
-      message.success("Student updated successfully");
+      showToast.success("Student updated successfully");
       setIsEditModalVisible(false);
       await fetchStudents();
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
       if (axiosError.response?.data?.message) {
-        message.error(axiosError.response.data.message);
+        showToast.error(axiosError.response.data.message);
       } else {
-        message.error("Failed to update student");
+        showToast.error("Failed to update student");
       }
     } finally {
       setLoading(false);
@@ -177,16 +177,16 @@ const ManagementStudent = () => {
       setLoading(true);
 
       await studentManagementService.addStudent(values.email);
-      message.success("Student added successfully");
+      showToast.success("Student added successfully");
       setIsAddModalVisible(false);
       form.resetFields();
       await fetchStudents();
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
       if (axiosError.response?.data?.message) {
-        message.error(axiosError.response.data.message);
+        showToast.error(axiosError.response.data.message);
       } else {
-        message.error("Failed to add student");
+        showToast.error("Failed to add student");
       }
     } finally {
       setLoading(false);
@@ -284,6 +284,7 @@ const ManagementStudent = () => {
 
   return (
     <div className="p-6">
+      <ToastComponent />
       <ReusableTable<Student>
         title="Student Management"
         data={students}

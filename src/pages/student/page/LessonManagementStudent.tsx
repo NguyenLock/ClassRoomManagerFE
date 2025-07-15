@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Tag, Button, message } from "antd";
+import { Tag, Button } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { LessonStudent } from "../../../types";
 import { auth } from "../../../utils/auth";
+import { showToast, ToastComponent } from "../../../components/UI/modal/Toast";
 import ReusableTable from "../../../components/UI/table";
 import lessonService from "../../../services/lessonService";
 
@@ -27,7 +28,7 @@ export const LessonManagementStudent = () => {
       const phoneNumber = decoded.phoneNumber;
 
       if (!phoneNumber) {
-        console.error("Phone number not found in token");
+        showToast.error("Phone number not found in token");
         return;
       }
 
@@ -36,7 +37,7 @@ export const LessonManagementStudent = () => {
         setLessons(response.data.lessons);
       }
     } catch (error) {
-      message.error("Failed to fetch lessons");
+      showToast.error("Failed to fetch lessons");
     } finally {
       setLoading(false);
     }
@@ -51,11 +52,11 @@ export const LessonManagementStudent = () => {
       setLoading(true);
       const response = await lessonService.markDoneLesson(lessonId);
       if (response.success) {
-        message.success(response.message);
+        showToast.success(response.message);
         setLessons(response.data.lessons);
       }
     } catch (error) {
-      message.error("Failed to mark lesson as done");
+      showToast.error("Failed to mark lesson as done");
     } finally {
       setLoading(false);
     }
@@ -118,6 +119,7 @@ export const LessonManagementStudent = () => {
 
   return (
     <div className="container mx-auto px-6 py-8">
+      <ToastComponent />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">

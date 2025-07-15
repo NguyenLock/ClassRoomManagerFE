@@ -4,6 +4,8 @@ import { instructorAuthService } from "../services/instructorAuth.service";
 import { studentAuthService } from "../services/studentAuth.service";
 import { auth } from "../utils/auth";
 import { useNavigate } from "react-router-dom";
+import { showToast, ToastComponent } from "../components/UI/modal/Toast";
+
 type UserRole = "instructor" | "student" | null;
 interface AccessCodePopupProps {
   isOpen: boolean;
@@ -22,7 +24,7 @@ const AccessCodePopup: React.FC<AccessCodePopupProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!accessCode.trim()) {
-      setError("Access code is required");
+      showToast.error("Access code is required");
       return;
     }
     onSubmit(accessCode);
@@ -31,6 +33,7 @@ const AccessCodePopup: React.FC<AccessCodePopupProps> = ({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl relative">
+        <ToastComponent />
         {/* Close button */}
         <button
           onClick={onClose}
@@ -143,7 +146,6 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError("");
 
     try {
       setIsLoading(true);
@@ -161,7 +163,7 @@ const Login = () => {
         setShowAccessCodePopup(true);
       }
     } catch (error) {
-      setError("Login failed. Please try again.");
+      showToast.error("Login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -177,6 +179,7 @@ const Login = () => {
         });
         auth.setToken(response.accessToken);
         localStorage.setItem("userType", response.userType);
+        showToast.success("Login successful!");
         navigate("/instructor/dashboard");
       } else if (role === "student") {
         const response = await studentAuthService.validateAccessCode({
@@ -185,11 +188,12 @@ const Login = () => {
         });
         auth.setToken(response.data.token);
         localStorage.setItem("userType", response.data.user.userType);
+        showToast.success("Login successful!");
         navigate("/student/dashboard");
       }
       setShowAccessCodePopup(false);
     } catch (error) {
-      setError("Invalid access code. Please try again.");
+      showToast.error("Invalid access code. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -197,6 +201,7 @@ const Login = () => {
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
+        <ToastComponent />
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <div className="bg-blue-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">

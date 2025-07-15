@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import dayjs from "dayjs";
-import { Tag, Button, message, Form, Input, Select } from "antd";
+import { Tag, Button, Form, Input, Select } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { UserPlus } from "lucide-react";
 import { Lesson, Student } from "../../../types";
 import { AxiosError } from "axios";
+import { showToast, ToastComponent } from "../../../components/UI/modal/Toast";
 import ReusableModal from "../../../components/UI/modal";
 import lessonManagementService from "../../../services/lessonManagement.service";
 import studentManagementService from "../../../services/studentManagement.service";
@@ -42,14 +43,14 @@ const ManagementLesson = () => {
       if (response.success) {
         setLessons(response.lessons);
       } else {
-        message.error("Failed to fetch lessons");
+        showToast.error("Failed to fetch lessons");
       }
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
       if (axiosError.response?.data?.message) {
-        message.error(axiosError.response.data.message);
+        showToast.error(axiosError.response.data.message);
       } else {
-        message.error("Failed to fetch lessons");
+        showToast.error("Failed to fetch lessons");
       }
     } finally {
       setLoading(false);
@@ -147,19 +148,19 @@ const ManagementLesson = () => {
 
       const response = await lessonManagementService.createLesson(values);
       if (response.success) {
-        message.success("Lesson added successfully");
+        showToast.success("Lesson added successfully");
         setIsAddModalVisible(false);
         form.resetFields();
         await fetchLessons();
       } else {
-        message.error("Failed to add lesson");
+        showToast.error("Failed to add lesson");
       }
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
       if (axiosError.response?.data?.message) {
-        message.error(axiosError.response.data.message);
+        showToast.error(axiosError.response.data.message);
       } else {
-        message.error("Failed to add lesson");
+        showToast.error("Failed to add lesson");
       }
     } finally {
       setLoading(false);
@@ -184,19 +185,19 @@ const ManagementLesson = () => {
       });
 
       if (response.success) {
-        message.success("Lesson assigned successfully");
+        showToast.success("Lesson assigned successfully");
         setIsAssignModalVisible(false);
         assignForm.resetFields();
         await fetchLessons();
       } else {
-        message.error("Failed to assign lesson");
+        showToast.error("Failed to assign lesson");
       }
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
       if (axiosError.response?.data?.message) {
-        message.error(axiosError.response.data.message);
+        showToast.error(axiosError.response.data.message);
       } else {
-        message.error("Failed to assign lesson");
+        showToast.error("Failed to assign lesson");
       }
     } finally {
       setLoading(false);
@@ -205,6 +206,7 @@ const ManagementLesson = () => {
 
   return (
     <div className="p-6">
+      <ToastComponent />
       <ReusableTable<Lesson>
         title="Lesson Management"
         data={lessons}

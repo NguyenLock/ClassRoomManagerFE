@@ -3,7 +3,12 @@
 A comprehensive classroom management application built with React, TypeScript, and modern web technologies. This system provides role-based dashboards for instructors and students with real-time communication capabilities.
 
 # Screenshots
+- HomePage
 ![Classroom Management System](./src/assets/website.png)
+- LoginPage
+![Classroom Manageemnt Logn](./src/assets/Login.gif)
+-Dashboard Intructors
+![Classroom Mangement DashBoard](./src/assets/lessonstudents.gif)
 
 ## ✨ Features
 

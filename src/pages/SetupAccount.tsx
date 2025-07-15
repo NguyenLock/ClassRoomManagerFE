@@ -2,6 +2,7 @@ import { useState, FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { studentAuthService } from "../services/studentAuth.service";
 import { SetupAccountRequest } from "../types";
+import { showToast, ToastComponent } from "../components/UI/modal/Toast";
 
 export const SetupAccount = () => {
   const navigate = useNavigate();
@@ -12,35 +13,32 @@ export const SetupAccount = () => {
     password: "",
   });
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     if (formData.password !== confirmPassword) {
-      setError("Passwords do not match");
+      showToast.error("Passwords do not match");
       return;
     }
 
     if (!verificationToken) {
-      setError(
-        "Invalid verification link. Please check your email for the correct link."
-      );
+      showToast.error("Invalid verification link. Please check your email for the correct link.");
       return;
     }
 
     try {
       await studentAuthService.setupAccount(verificationToken, formData);
-      navigate("/login", {
-        state: { message: "Account setup successful! You can now login." },
-      });
+      showToast.success("Account setup successful!");
+      navigate("/login");
     } catch (err) {
-      setError("Failed to setup account. Please try again or contact support.");
+      showToast.error("Failed to setup account. Please try again or contact support.");
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <ToastComponent />
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 font-sans">
           Secure Setup
@@ -148,18 +146,6 @@ export const SetupAccount = () => {
                 />
               </div>
             </div>
-
-            {error && (
-              <div className="rounded-md bg-red-50 p-4">
-                <div className="flex">
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-red-800 font-sans">
-                      {error}
-                    </h3>
-                  </div>
-                </div>
-              </div>
-            )}
 
             <div>
               <button

@@ -1,7 +1,16 @@
 import { FormInstance } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { ReactNode } from "react";
+import { ToastOptions } from "react-toastify";
 
+export interface ToastProps {
+  position?: ToastOptions["position"];
+  autoClose?: number;
+  hideProgressBar?: boolean;
+  closeOnClick?: boolean;
+  pauseOnHover?: boolean;
+  draggable?: boolean;
+}
 export interface EditProfileRequest {
   name: string;
   email: string;
@@ -168,7 +177,7 @@ export interface ServerMessage {
   studentEmail: string;
   instructorPhone?: string;
   fromName?: string;
-  senderType: 'student' | 'instructor';
+  senderType: "student" | "instructor";
   timestamp: string | Date;
 }
 
@@ -178,7 +187,7 @@ export interface Message {
   senderName: string;
   content: string;
   timestamp: Date;
-  type: 'text';
+  type: "text";
   isOwn: boolean;
 }
 
@@ -217,7 +226,7 @@ export interface ChatMessage {
   studentEmail: string;
   message: string;
   timestamp: string;
-  senderType: 'student' | 'instructor';
+  senderType: "student" | "instructor";
   fromName?: string;
   instructorPhone?: string;
 }
@@ -263,4 +272,3 @@ export interface GetAllInstructorsResponse {
   total: number;
   data: Instructor[];
 }
-
