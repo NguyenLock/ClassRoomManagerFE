@@ -8,6 +8,8 @@ import {
   BookOpenCheck,
   Calendar,
   Settings,
+  FileText,
+  ClipboardList,
 } from "lucide-react";
 import { MenuItem, SidebarProps } from "../../types";
 

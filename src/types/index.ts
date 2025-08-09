@@ -272,3 +272,98 @@ export interface GetAllInstructorsResponse {
   total: number;
   data: Instructor[];
 }
+
+// Assignment Types
+export interface Assignment {
+  id: string;
+  title: string;
+  description: string;
+  lessonId: string;
+  deadline: string;
+  maxScore: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateAssignmentRequest {
+  title: string;
+  description: string;
+  lessonId: string;
+  deadline: string;
+  maxScore: number;
+}
+
+export interface UpdateAssignmentRequest {
+  title?: string;
+  description?: string;
+  deadline?: string;
+  maxScore?: number;
+}
+
+export interface GetAssignmentsByLessonResponse {
+  success: boolean;
+  assignments: Assignment[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface GetAllAssignmentsResponse {
+  success: boolean;
+  assignments: Assignment[];
+  total: number;
+}
+
+export interface AssignmentSubmission {
+  id: string;
+  assignmentId: string;
+  studentId: string;
+  studentName: string;
+  studentEmail: string;
+  content: string;
+  attachments?: string[];
+  submittedAt: string;
+  score?: number;
+  feedback?: string;
+  status: 'submitted' | 'graded' | 'late';
+}
+
+export interface SubmitAssignmentRequest {
+  content: string;
+  attachments?: string[];
+}
+
+export interface GradeSubmissionRequest {
+  score: number;
+  feedback?: string;
+}
+
+export interface GetSubmissionsResponse {
+  success: boolean;
+  submissions: AssignmentSubmission[];
+  total: number;
+}
+
+export interface GetMySubmissionsResponse {
+  success: boolean;
+  submissions: AssignmentSubmission[];
+}
+
+export interface StudentAssignment {
+  id: string;
+  title: string;
+  description: string;
+  lessonId: string;
+  lessonTitle: string;
+  deadline: string;
+  maxScore: number;
+  assignedAt: string;
+  status: 'pending' | 'submitted' | 'graded' | 'overdue';
+  submission?: AssignmentSubmission;
+}
+
+export interface GetMyAssignmentsResponse {
+  success: boolean;
+  assignments: StudentAssignment[];
+  total: number;
+}

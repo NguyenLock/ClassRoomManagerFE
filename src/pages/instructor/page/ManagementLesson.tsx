@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import { Tag, Button, Form, Input, Select } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { UserPlus } from "lucide-react";
+import { UserPlus, Eye } from "lucide-react";
 import { Lesson, Student } from "../../../types";
 import { AxiosError } from "axios";
 import { showToast, ToastComponent } from "../../../components/UI/modal/Toast";
@@ -10,6 +10,7 @@ import ReusableModal from "../../../components/UI/modal";
 import lessonManagementService from "../../../services/lessonManagement.service";
 import studentManagementService from "../../../services/studentManagement.service";
 import ReusableTable from "../../../components/UI/table";
+import { LessonDetail } from "./LessonDetail";
 
 const ManagementLesson = () => {
   const [loading, setLoading] = useState(false);
@@ -18,6 +19,8 @@ const ManagementLesson = () => {
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isAssignModalVisible, setIsAssignModalVisible] = useState(false);
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
+  const [viewMode, setViewMode] = useState<'list' | 'detail'>('list');
+  const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
   const [form] = Form.useForm();
   const [assignForm] = Form.useForm();
 
@@ -125,12 +128,20 @@ const ManagementLesson = () => {
       key: "actions",
       width: "15%",
       render: (_, record) => (
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2">
+          <Button
+            type="text"
+            icon={<Eye size={16} className="text-blue-600" />}
+            onClick={() => handleViewDetail(record)}
+            className="flex items-center hover:text-blue-700"
+            title="View Details"
+          />
           <Button
             type="text"
             icon={<UserPlus size={16} className="text-green-600" />}
             onClick={() => handleAssign(record)}
             className="flex items-center hover:text-green-700"
+            title="Assign to Students"
           />
         </div>
       ),
@@ -165,6 +176,16 @@ const ManagementLesson = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleViewDetail = (lesson: Lesson) => {
+    setSelectedLessonId(lesson.id);
+    setViewMode('detail');
+  };
+
+  const handleBackToList = () => {
+    setViewMode('list');
+    setSelectedLessonId(null);
   };
 
   const handleAssign = (lesson: Lesson) => {
@@ -203,6 +224,16 @@ const ManagementLesson = () => {
       setLoading(false);
     }
   };
+
+  // Render lesson detail view
+  if (viewMode === 'detail' && selectedLessonId) {
+    return (
+      <LessonDetail 
+        lessonId={selectedLessonId} 
+        onBack={handleBackToList}
+      />
+    );
+  }
 
   return (
     <div className="p-6">
