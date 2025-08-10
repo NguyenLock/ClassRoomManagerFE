@@ -1,17 +1,13 @@
 import {
-  Assignment,
   CreateAssignmentRequest,
   UpdateAssignmentRequest,
-  GetAllAssignmentsResponse,
   GetAssignmentsByLessonResponse,
   GetSubmissionsResponse,
   GradeSubmissionRequest,
-  AssignmentSubmission
 } from "../types";
 import apiInstance from "./api";
 
 const assignmentManagementService = {
-  // Get assignments by lesson ID (main API endpoint)
   getAssignmentsByLesson: async (lessonId: string, page = 1, pageSize = 10): Promise<GetAssignmentsByLessonResponse> => {
     try {
       const response = await apiInstance.get<GetAssignmentsByLessonResponse>(
@@ -23,7 +19,6 @@ const assignmentManagementService = {
     }
   },
 
-  // Create new assignment
   createAssignment: async (payload: CreateAssignmentRequest) => {
     try {
       const response = await apiInstance.post(
@@ -37,7 +32,6 @@ const assignmentManagementService = {
     }
   },
 
-  // Update assignment
   updateAssignment: async (assignmentId: string, payload: UpdateAssignmentRequest) => {
     try {
       const response = await apiInstance.put(
@@ -51,7 +45,6 @@ const assignmentManagementService = {
     }
   },
 
-  // Delete assignment
   deleteAssignment: async (assignmentId: string) => {
     try {
       const response = await apiInstance.delete(
@@ -64,7 +57,6 @@ const assignmentManagementService = {
     }
   },
 
-  // Get submissions for an assignment
   getSubmissions: async (assignmentId: string): Promise<GetSubmissionsResponse> => {
     try {
       const response = await apiInstance.get<GetSubmissionsResponse>(
@@ -76,7 +68,6 @@ const assignmentManagementService = {
     }
   },
 
-  // Grade a submission
   gradeSubmission: async (submissionId: string, payload: GradeSubmissionRequest) => {
     try {
       const response = await apiInstance.put(

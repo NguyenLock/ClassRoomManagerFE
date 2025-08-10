@@ -1,8 +1,5 @@
 import {
-  GetMyAssignmentsResponse,
   SubmitAssignmentRequest,
-  GetMySubmissionsResponse,
-  StudentAssignment
 } from "../types";
 import apiInstance from "./api";
 
@@ -24,7 +21,6 @@ const assignmentService = {
     }
   },
 
-  // Get student's submission for specific assignment
   getStudentSubmission: async (assignmentId: string) => {
     try {
       const response = await apiInstance.get(
@@ -36,7 +32,6 @@ const assignmentService = {
     }
   },
 
-  // Delete submission
   deleteSubmission: async (submissionId: string) => {
     try {
       const response = await apiInstance.delete(
